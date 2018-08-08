@@ -900,3 +900,139 @@ B = 2
 
 print(findCount(A,B))
 
+
+def zigzag(A, B):
+	if B == 1:
+		return A
+	row = 0
+	direction = 1
+	rows = []
+	i = 0
+	while True:
+		if len(rows) - 1 < row:
+			rows.append([])
+		rows[row].append(A[i])
+		direction *= -1 if row+direction < 0 or row+direction == B else 1
+		row = row + direction
+		print("row:{} direction:{} rows:{}".format(row, direction, rows))
+		i += 1
+		if i == len(A):
+			break
+	
+	out = ''.join([ ''.join(r) for r in rows if r != None ])
+	return out
+
+A = "ROGERISWINNING"
+B = 3
+
+# A = "kHAlbLzY8Dr4zR0eeLwvoRFg9r23Y3hEujEqdio0ctLh4jZ1izwLh70R7SAkFsXlZ8UlghCL95yezo5hBxQJ1Td6qFb3jpFrMj8pdvP6M6k7IaXkq21XhpmGNwl7tBe86eZasMW2BGhnqF6gPb1YjCTexgCurS"
+# B = 1
+
+print(zigzag(A,B))
+
+
+def atoi(A):
+	sign = 1
+	a = A.strip()
+	nums = list("0123456789")
+	sumNum = 0
+	for c in a:
+		if c in ['+', '-'] and sumNum == 0:
+			sign = -1 if c == '-' else 1
+			continue
+		if not c in nums and sumNum == 0:
+			return 0
+		if not c in nums:
+			break
+		if c in nums:
+			sumNum *= 10
+			sumNum += nums.index(c)
+
+	sumNum *= sign
+	
+	if sumNum > 2147483647:
+		sumNum = 2147483647
+	elif sumNum < -2147483648:
+		sumNum = -2147483648
+			
+	return sumNum
+
+A = "-88297 248252140B12 37239U4622733246I218 9 1303 44 A83793H3G2 1674443R591 4368 7 97"
+
+print(atoi(A))
+
+
+def strMultiply( A, B):
+	if A=='0' or B=='0':
+		return '0'
+	nums = list('0123456789')
+	a = A[::-1] #reverse
+	b = B[::-1] #reverse
+	#convert to list of digits
+	a = [nums.index(d) for d in a]
+	b = [nums.index(d) for d in b]
+	# print("a:{} b:{}".format(a, b))
+	
+	carry = 0
+	digits = []
+	'''
+	202
+	 91
+	___
+	  1 x 202 = 202
+	+ 90 x 202 = 10 * (9 * 2 = 8 c 1, 9 * 0 + 1c = 1, 9 * 2 + 0c = 8 c 1, 9 * 0 + 1c = 1)
+
+
+	99999
+	99999
+	_____
+
+	9 x 9 = 1 c8, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 0 x 9 + 8 = 8
+	> 9 x 9 = 1 c8 + 9 = 0 c9, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 9 x 9 + 8 = 9 c8, 0 x 9 + 8 = 8
+
+	1, 9, 9, 9, 9, 8
+	0, , 
+	'''
+	i = 0
+	for da in a:
+		j = i
+		for db in b:
+			if len(digits) -1 < j:
+				digits.append(0)
+			digits[j] += da * db + carry
+			carry = digits[j]//10
+			digits[j] %= 10
+			# print(digits, carry, i, j)
+			j += 1
+		if carry > 0:
+			if len(digits) - 1 < j:
+				digits.append(0)
+			digits[j] += carry
+			carry = 0
+		i += 1
+	
+	while True:
+		if digits[-1] != 0:
+			break
+		digits.pop()
+
+	return ''.join([ str(n) for n in digits[::-1]])
+
+
+A = "99999"
+B = "99999"
+
+print(strMultiply(A,B))
+
+
+A = "202"
+B = "91"
+
+print(strMultiply(A,B))
+
+A = "202927392794610473036503629403628295826"
+B = "0092972662936629465926527496251141"
+
+print(strMultiply(A,B))
+print("A * B", int(A) * int(B))
+
