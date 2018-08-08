@@ -907,29 +907,37 @@ def zigzag(A, B):
 	row = 0
 	direction = 1
 	rows = []
+	strings = []
+	for r in range(B):
+		strings.append([])
 	i = 0
 	while True:
 		if len(rows) - 1 < row:
 			rows.append([])
+		for s in strings:
+			s.append('.')
 		rows[row].append(A[i])
+		strings[row][-1] = A[i]
 		direction *= -1 if row+direction < 0 or row+direction == B else 1
 		row = row + direction
-		print("row:{} direction:{} rows:{}".format(row, direction, rows))
+		# print("row:{} direction:{} rows:{}".format(row, direction, rows))
 		i += 1
 		if i == len(A):
 			break
 	
 	out = ''.join([ ''.join(r) for r in rows if r != None ])
+	print('\n'.join([ ''.join(c) for c in strings ]))
 	return out
 
 A = "ROGERISWINNING"
 B = 3
 
-# A = "kHAlbLzY8Dr4zR0eeLwvoRFg9r23Y3hEujEqdio0ctLh4jZ1izwLh70R7SAkFsXlZ8UlghCL95yezo5hBxQJ1Td6qFb3jpFrMj8pdvP6M6k7IaXkq21XhpmGNwl7tBe86eZasMW2BGhnqF6gPb1YjCTexgCurS"
-# B = 1
-
 print(zigzag(A,B))
 
+A = "THISISASONGABOUTCOLORSCOLORSYOUSEETHEMALLAROUND"
+B = 9
+
+print(zigzag(A,B))
 
 def atoi(A):
 	sign = 1
