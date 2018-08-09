@@ -1061,3 +1061,54 @@ def findMinXor(A):
 	return minXOR
 
 
+def divide(A, B):
+	INT_MAX = 2147483647
+	INT_MIN = -2147483648
+	
+	sign = -1 if (A < 0 and B > 0) or (B < 0 and A > 0) else 1
+	A = abs(A)
+	B = abs(B)
+	
+	i = 0
+	quotient = 0
+	remainder = 0
+	
+	if B == 0:
+		return INT_MAX
+		
+	for i in range(31, -1, -1):
+		quotient <<= 1
+		remainder <<= 1
+		remainder |= (A & ( 1 << i)) >> i
+		
+		if remainder >= B:
+			remainder -= B
+			quotient += 1
+	
+	if sign < 0:
+		quotient = ~quotient + 1
+		
+	if quotient > INT_MAX:
+		return INT_MAX
+	if quotient < INT_MIN:
+		return INT_MIN
+		
+	return quotient
+
+A = [ 
+	100, 20,
+	10, 5,
+	202, 100,
+	-2147483648, -10000000,
+	300, 1,
+	1, 1
+		]
+
+for i in range(0, len(A), 2):
+	print("divide( {} , {} ) = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
+	print(" {}/{} = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
+
+
+
+
+
