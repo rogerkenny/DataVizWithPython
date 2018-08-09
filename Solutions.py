@@ -1044,3 +1044,20 @@ B = "009297266293662946104730365036294036282961047303650362940362829582658266592
 print(strMultiply(A,B))
 print("A * B", int(A) * int(B))
 
+for d in '0123456789':
+	print(ord(d))
+
+
+def findMinXor(A):
+	'''Expecting 0 <= A[i] so min XOR = 0'''
+	A.sort()
+	minXOR = float("inf")
+	i = 0
+	while i < len(A) - 1:
+		minXOR = min(minXOR, A[i]^A[i+1])
+		if minXOR == 0:
+			return 0
+		i += 1
+	return minXOR
+
+
