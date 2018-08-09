@@ -939,6 +939,11 @@ B = 9
 
 print(zigzag(A,B))
 
+A = "CAN'T OPEN MY EYES GIRL"
+B = 8
+
+print(zigzag(A,B))
+
 def atoi(A):
 	sign = 1
 	a = A.strip()
@@ -973,14 +978,8 @@ print(atoi(A))
 def strMultiply( A, B):
 	if A=='0' or B=='0':
 		return '0'
-	nums = list('0123456789')
-	a = A[::-1] #reverse
-	b = B[::-1] #reverse
-	#convert to list of digits
-	a = [nums.index(d) for d in a]
-	b = [nums.index(d) for d in b]
-	# print("a:{} b:{}".format(a, b))
-	
+	a = [ ord(d) - ord('0') for d in A[::-1]]
+	b = [ ord(d) - ord('0') for d in B[::-1]]
 	carry = 0
 	digits = []
 	'''
@@ -1018,14 +1017,16 @@ def strMultiply( A, B):
 			digits[j] += carry
 			carry = 0
 		i += 1
-	
 	while True:
 		if digits[-1] != 0:
 			break
 		digits.pop()
-
 	return ''.join([ str(n) for n in digits[::-1]])
 
+A = "2"
+B = "222"
+
+print(strMultiply(A,B))
 
 A = "99999"
 B = "99999"
@@ -1105,8 +1106,8 @@ A = [
 		]
 
 for i in range(0, len(A), 2):
-	print("divide( {} , {} ) = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
-	print(" {}/{} = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
+	print("divide({}, {}) = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
+	print("{}/{} = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
 
 
 
