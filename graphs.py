@@ -156,7 +156,7 @@ class pathFinder:
 				if a not in self.costSoFar or new_cost < self.costSoFar[a]:
 					self.costSoFar[a] = new_cost
 					a.lastCost = new_cost
-					q.put( a)
+					q.put(a)
 					self.cameFrom[a] = self.current
 					
 	def astar(self):

@@ -1,3 +1,4 @@
+import math
 
 def plusOne( A):
 	print(A)
@@ -1109,6 +1110,205 @@ for i in range(0, len(A), 2):
 	print("divide({}, {}) = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
 	print("{}/{} = {}".format(A[i], A[i+1], divide(A[i], A[i+1])) )
 
+
+def singleNumber(A):
+	bits = 0
+	for n in A:
+		bits = bits ^ (1 << n)
+	'''
+	x & ~(x-1) extracts the lowest set bit of x (all others are clear). Pretty patterns when applied to a linear sequence.
+	'''
+	# print("{:b}".format(bits))
+	return int( math.log2(bits & ~(bits - 1)) )
+
+A = [ 723, 256, 668, 723, 140, 360, 597, 233, 128, 845, 737, 804, 986, 701, 906, 512, 845, 510, 510, 227, 430, 701, 366, 946, 464, 619, 946, 627, 209, 771, 424, 555, 959, 711, 530, 937, 716, 261, 505, 658, 706, 140, 511, 277, 396, 233, 819, 196, 475, 906, 583, 261, 147, 658, 517, 197, 196, 702, 944, 711, 128, 555, 149, 483, 530, 291, 716, 258, 430, 464, 601, 749, 149, 415, 802, 573, 627, 771, 660, 601, 360, 986, 291, 51, 415, 51, 227, 258, 937, 366, 923, 669, 33, 517, 417, 702, 475, 706, 110, 417, 275, 804, 500, 473, 746, 973, 669, 275, 973, 147, 817, 657, 277, 923, 144, 660, 197, 511, 793, 893, 944, 505, 322, 817, 586, 512, 322, 668, 33, 424, 962, 597, 144, 746, 345, 753, 345, 269, 819, 483, 368, 802, 573, 962, 583, 615, 208, 209, 269, 749, 256, 657, 619, 893, 959, 473, 753, 299, 396, 299, 500, 368, 586, 110, 793, 737, 615 ]
+
+
+print(singleNumber(A))
+
+
+def solveSudoku(A):
+	a = A[:]
+	for ri in range(len(a)):
+		a[ri] = list(a[ri])
+	print(a)
+	mysteryCells = []
+	for ri in range(len(A)):
+			for ci in range(len(A[ri])):
+				if A[ri][ci] == '.':
+					mysteryCells.append([ri, ci])
+	
+	def solve(a, mysteryCells, cellI):
+		'''
+		cell is going to be [row, col]
+		'''
+		'''
+		if No unset cells return A
+		'''
+		mya = a[:]
+		print([''.join(r) for r in a])
+		if len(mysteryCells) == cellI:
+			return True
+			
+		cell = mysteryCells[cellI]
+			
+		rowSet = {i for i in '123456789'}
+		colSet = {i for i in '123456789'}
+		try:
+			for row in mya:
+				if row[cell[1]] != '.':
+					rowSet.remove(row[cell[1]])
+			for col in mya[cell[0]]:
+				if col != '.':
+					colSet.remove(col)
+			print(rowSet, colSet)
+		except:
+			return False
+		
+		possibleVals = rowSet & colSet
+		if len(possibleVals) == 0:
+			return False
+		
+		for v in possibleVals:
+			mya[cell[0]][cell[1]] = v
+			result = solve(mya, mysteryCells, cellI + 1)
+			
+			if result:
+				return result
+		
+	return solve(a, mysteryCells, 0)
+
+A = [ "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "....8..79" ]
+
+print(solveSudoku(A), A)
+
+
+
+
+class A0Paper:
+	def canBuild(self, A):
+		possible, notPossible = "Possible", "Impossible"
+		
+		'''
+		Start with whole 0 needed
+		Any 0s available? 
+		Yes? Return True
+		No? ->
+		Iterate with 2 1's needed
+		How many 1s (a)vailabe?
+		a >= (N)eeded? -> Return True
+		a < N -> 
+		Iterate with N1 = 2 * (N - a)
+		
+		'''
+		
+		def iterateNeeded(A, i, N):
+			if N == 0:
+				return True
+			if i == len(A):
+				return False
+			if A[i] >= N:
+				return True
+			return iterateNeeded(A, i + 1, 2 * (N - A[i]))
+		
+		return possible if iterateNeeded(A, 0, 1) else notPossible
+			
+		
+		
+a = A0Paper()
+
+A = [
+	[1],
+	[0,2,0],
+	[0,1,4,0,1],
+	[0],
+	[0,0,3],
+	]
+
+for p in A:
+	print("It is {} to make A0 out of {}".format(a.canBuild(p), p))
+
+  
+
+class LinearTravellingSalesman:
+	def findMinimumDistance(self,x,y):
+		'''
+		Linear optimal solution will always be length of extant points
+		'''
+		points = list(zip(x,y))
+
+		points.sort()
+
+		return abs(points[0][0] - points[-1][0]) + abs(points[0][1] - points[-1][1])
+
+
+def multOf3and5(n):
+	'''
+	'''
+	threes = 3
+	fives = 5
+	i = 1
+	accum = 0
+	listM = []
+	while threes < n or fives < n:
+		threes = 3 * i
+		fives = 5 * i
+		if threes < n:
+			if not threes in listM: 
+				listM.append(threes)
+				accum += threes
+		if fives < n:
+			if not fives in listM:
+				listM.append(fives)
+				accum += fives
+		i += 1
+	print(listM)
+	return accum
+
+X = [10, 100, 1000]
+
+for x in X:
+	print("multOf3and5({}) = {}".format(x, multOf3and5(x)))
+
+
+
+def fibonacciFindEvenSum(n):
+	memo = [1,1]
+	forPrint = memo[0:1]
+	i = 2
+	accum = 0
+	while memo[1] < n:
+		if memo[1] % 2 == 0:
+			accum += memo[1]
+		forPrint.append(memo[1])
+		nextF = memo[0] + memo[1]
+		memo[0] = memo[1]
+		memo[1] = nextF
+		i += 1
+	print(forPrint)
+	return accum
+
+X = [100, 4000000]
+
+for x in X:
+	print("Sum of even fibonacci numbers less than {} is {}".format(x, fibonacciFindEvenSum(x)))
+
+
+
+def primeFactors(n):
+	'''
+	Find prime factors of n
+
+	Get list of primes 
+	'''
+	largestPossible = n/2
+	#TODO
+
+
+
+ 
+
+X = [ 13195, 600851475143 ]
 
 
 
