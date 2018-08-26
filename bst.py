@@ -11,7 +11,7 @@ class bst():
 		# l = self.left.val if self.left != None else None
 		# r = self.right.val if self.right != None else None
 		# return "( V {} P {} L {} R {} )".format(self.val, p, l, r )
-		return "{}".format(self.val)
+		return "({} h{})".format(self.val, self.height)
 
 
 	def insert(self, n):
@@ -78,7 +78,7 @@ class bst():
 				return current
 		return None
 
-	def replaceChild(self, n, m):
+	def _replaceChild(self, n, m):
 		if self.left == n:
 			self.left = m
 		elif self.right == n:
@@ -143,16 +143,18 @@ class bst():
 			'''
 			if found.left == None and found.right == None:
 				if found.parent != None:
-					found.parent.replaceChild(found, None)
+					found.parent._replaceChild(found, None)
+				else:
+					found.val = None
 				found = None
 			elif found.left != None and found.right == None and found.parent != None:
 				if found.parent != None:
-					found.parent.replaceChild(found, found.left)				
+					found.parent._replaceChild(found, found.left)				
 				found.left.parent = found.parent
 				found = None
 			elif found.right != None and found.left == None and found.parent != None:
 				if found.parent != None:
-					found.parent.replaceChild(found, found.right)
+					found.parent._replaceChild(found, found.right)
 				found.right.parent = found.parent
 				found = None
 			else:
@@ -166,12 +168,15 @@ class bst():
 if __name__ == "__main__":
 	A =[
 		[32, 7, 17, 24, 75, 100, 111, 101, 102, 2, 3, 204, 55, 66, 60, 11, 33, 34 ],
+		[7,56,88,64,667,97,986,5,44,768,547,876,767,222,333,444,555,434,91,723,575,845,253,111,20,672,785,693,822,389,797,123,4444,37,100,101,209,917,888,778,887,234,345,456,567,677,789,879,987,876,765,654,543,432,321,132],
 		[1,2,3,4,5],
 	]
 
 	S = [
 		[100, 66, 11, 32, 204, 2],
-		[1,4,5]
+
+		[7, 88,456,987,666,797,243,222,111,100,5,876,777],
+		[1,4,5,3,2],
 	]
 
 
@@ -204,6 +209,8 @@ if __name__ == "__main__":
 
 		#Traverse
 		t.inOrderTraverse()
+		print('min = {}'.format(t.min()))
+		print('max = {}'.format(t.max()))
 
 		#Delete elements
 		for d in S[i]:
