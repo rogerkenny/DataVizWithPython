@@ -1,6 +1,7 @@
 class bst():
-	def __init__(self, val, parent=None, left=None, right=None, height=0):
+	def __init__(self, val, parent=None, left=None, right=None, height=0, times=1):
 		self.val = val
+		self.times = times
 		self.parent = parent
 		self.left = left
 		self.right = right
@@ -15,23 +16,31 @@ class bst():
 
 
 	def insert(self, n):
-		if n.val <= self.val:
+		if n.val == self.val:
+			self.times += 1
+			return
+		if n.val < self.val:
 			if self.left == None:
 				self.left = n
 				n.parent = self
-				self.height = 1
-				return
+				n._fixHeightsUp()
 			else:
 				self.left.insert(n)
 		if n.val > self.val:
 			if self.right == None:
 				self.right = n
 				n.parent = self
-				self.height = 1
-				return
+				n._fixHeightsUp()
 			else:
 				self.right.insert(n)
-		self.height = max((self.left.height if self.left != None else 0), (self.right.height if self.right != None else 0)) + 1
+
+
+	def _fixHeightsUp(self):
+		leftHeight = self.left.height if self.left != None else 0
+		rightHeight = self.right.height if self.right != None else 0
+		self.height = max(leftHeight, rightHeight) + 1
+		if self.parent != None:
+			self.parent._fixHeightsUp()
 
 	def find(self, val):
 		if self.val == val:
@@ -116,6 +125,44 @@ class bst():
 		else:
 			return out
 
+	def asciiTree(self, side=None):
+		out = ''
+		label = ''
+		lbar, rbar = ' ', ' '
+		if side == 'left':
+			label = 'L-'
+			rbar = '|'
+		elif side == 'right':
+			label = 'R-'
+			lbar = '|'
+
+		padding = " " * (len(str(self.val)) + len(label) - 1)
+
+		if self.left != None:
+			outLeft = self.left.asciiTree('left')
+			outLeft = outLeft.split('\n')
+			outLeft = [ "{1}{0}{2}".format(padding, lbar, x) for x in outLeft if x != ""]
+			outLeft = "\n".join(outLeft)
+			out += outLeft + (lbar + "\n" if side=="left" else "\n")
+
+		out += label + str(self.val) + "\n"
+
+		if self.right != None:
+			outRight = self.right.asciiTree('right')
+			outRight = outRight.split('\n')
+			outRight = [ "{1}{0}{2}".format(padding, rbar, x) for x in outRight if x != "" ]
+			outRight = "\n".join(outRight)
+			# out += ( rbar + "\n" if side=="right" else "" )
+			out += outRight 
+
+		if self.parent == None:
+			print("\n" + out + "\n")
+		else:
+			return out
+
+
+
+
 
 	def delete(self, n):
 		found = n
@@ -144,25 +191,56 @@ class bst():
 			if found.left == None and found.right == None:
 				if found.parent != None:
 					found.parent._replaceChild(found, None)
+					found.parent._fixHeightsUp()
 				else:
 					found.val = None
 				found = None
 			elif found.left != None and found.right == None and found.parent != None:
 				if found.parent != None:
-					found.parent._replaceChild(found, found.left)				
+					found.parent._replaceChild(found, found.left)
+					found.parent._fixHeightsUp()		
 				found.left.parent = found.parent
 				found = None
 			elif found.right != None and found.left == None and found.parent != None:
 				if found.parent != None:
 					found.parent._replaceChild(found, found.right)
+					found.parent._fixHeightsUp()
 				found.right.parent = found.parent
 				found = None
 			else:
 				successor = found.successor()
 				found.val = successor.val
+				#Should automatically fix heights
 				self.delete(successor)
 
 
+'''
+         0
+       /   \
+     0       0
+   /   \    /  \
+  0     0  0    0
+ / |  / | | \  | \
+0  0 0  0 0  0 0  0
+
+
+      R-777
+      |   L-
+  R-666
+  |   L-556
+555          
+  |
+  L-444
+
+
+   L
+  C
+ | R
+C
+ R
+
+
+'''
 
 
 if __name__ == "__main__":
@@ -209,6 +287,7 @@ if __name__ == "__main__":
 
 		#Traverse
 		t.inOrderTraverse()
+		t.asciiTree()
 		print('min = {}'.format(t.min()))
 		print('max = {}'.format(t.max()))
 
@@ -223,6 +302,7 @@ if __name__ == "__main__":
 
 		#Traverse
 		t.inOrderTraverse()
+		t.asciiTree()
 
 
 
