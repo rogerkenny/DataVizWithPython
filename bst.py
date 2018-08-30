@@ -34,11 +34,45 @@ class bst():
 			else:
 				self.right.insert(n)
 
-
-	def _fixHeightsUp(self):
+	def _childHeights(self):
 		leftHeight = self.left.height if self.left != None else 0
 		rightHeight = self.right.height if self.right != None else 0
+		return (leftHeight, rightHeight)
+
+	def _fixHeights(self):
+		leftHeight, rightHeight = self._childHeights()
 		self.height = max(leftHeight, rightHeight) + 1
+
+	def _fixHeightsUp(self):
+		leftHeight, rightHeight = self._childHeights()
+
+		#See if I am double right heavy
+		if rightHeight - leftHeight > 1:
+			#See if right child is right heavy or even
+			rightLeftHeight, rightRightHeight = self.right._childHeights()
+			if rightRightHeight - rightLeftHeight >= 0:
+				#rotate left once
+				self.rotateLeft()
+			else:
+				#double rotate
+				z = self.right
+				z.rotateRight()
+				self.rotateLeft()
+
+		elif leftHeight - rightHeight > 1:	#See if I am double left heavy
+			#see if left child is left heavy or even
+			leftLeftHeight, leftRightHeight = self.left._childHeights()
+			if leftLeftHeight - leftRightHeight >= 0:
+				self.rotateRight()
+			else:
+				z = self.left
+				z.rotateLeft()
+				self.rotateRight()
+
+
+
+		self._fixHeights()
+
 		if self.parent != None:
 			self.parent._fixHeightsUp()
 
@@ -136,7 +170,7 @@ class bst():
 			label = 'R-'
 			lbar = '|'
 
-		padding = " " * (len(str(self.val)) + len(label) - 1)
+		padding = " " * (len(str(self.val)) + len(label) - 1 + len(str(self.height)) + 2)
 
 		if self.left != None:
 			outLeft = self.left.asciiTree('left')
@@ -145,7 +179,7 @@ class bst():
 			outLeft = "\n".join(outLeft)
 			out += outLeft + (lbar + "\n" if side=="left" else "\n")
 
-		out += label + str(self.val) + "\n"
+		out +=  "{}{} H{}\n".format( label, self.val, self.height )
 
 		if self.right != None:
 			outRight = self.right.asciiTree('right')
@@ -160,9 +194,109 @@ class bst():
 		else:
 			return out
 
+	def _detail(self):
+		return ('(v{} p{} l{} r{})'.format(self.val, self.parent, self.left, self.right))
+		
+	def rotateLeft(self):
+		if self.right == None:
+			return
+
+		nn = self.right
+		if self.parent != None:
+			if nn.left == None:
+				self.right = None
+			else:
+				self.right = nn.left
+				nn.left.parent = self
+
+			nn.left = self
+		
+			if self.parent.left == self:
+				self.parent.left = nn
+			elif self.parent.right == self:
+				self.parent.right = nn
+			nn.parent = self.parent
+			self.parent = nn
+		else:
+			#ALT FOR ROOT NODE:::::
+			temp = self.val
+			self.val = nn.val
+			nn.val = temp
+
+			self.right = nn.right
+			if self.right != None:
+				self.right.parent = self
+
+			nn.right = nn.left
+
+			nn.left = self.left 
+			if nn.left != None:
+				nn.left.parent = nn
+
+			self.left = nn
+			nn.parent = self
+
+		if self.left != None:
+			self.left._fixHeights()
+		if self.right != None: 
+			self.right._fixHeights()
+		#must manually fix height for nn
+		if nn.left != None:
+			nn.left._fixHeights()
+		if nn.right != None:
+			nn.right._fixHeights()
+		nn._fixHeights()
 
 
+	def rotateRight(self):
+		# return
+		if self.left == None:
+			return
 
+		nn = self.left
+		if self.parent != None:
+
+			self.left = nn.right
+			if self.left != None:
+				self.left.parent = self
+
+			nn.right = self
+
+			if self.parent.left == self:
+				self.parent.left = nn
+			elif self.parent.right == self:
+				self.parent.right = nn
+			nn.parent = self.parent
+			self.parent = nn
+		else:
+			#ALT FOR ROOT NODE:::::
+			temp = self.val
+			self.val = nn.val
+			nn.val = temp
+
+			self.left = nn.left
+			if self.left != None:
+				self.left.parent = self
+
+			nn.left = nn.right
+
+			nn.right = self.right 
+			if nn.right != None:
+				nn.right.parent = nn
+
+			self.right = nn
+			nn.parent = self
+
+		if self.left != None:
+			self.left._fixHeights()
+		if self.right != None: 
+			self.right._fixHeights()
+		#must manually fix height for nn
+		if nn.left != None:
+			nn.left._fixHeights()
+		if nn.right != None:
+			nn.right._fixHeights()
+		nn._fixHeights()
 
 	def delete(self, n):
 		found = n
@@ -250,9 +384,14 @@ if __name__ == "__main__":
 		[1,2,3,4,5],
 	]
 
+	R = [
+		[],
+		[],
+		[]
+	]
+
 	S = [
 		[100, 66, 11, 32, 204, 2],
-
 		[7, 88,456,987,666,797,243,222,111,100,5,876,777],
 		[1,4,5,3,2],
 	]
@@ -290,6 +429,16 @@ if __name__ == "__main__":
 		t.asciiTree()
 		print('min = {}'.format(t.min()))
 		print('max = {}'.format(t.max()))
+
+		#Rotate
+		for r in R[i]:
+			rf = t.find(r[0])
+			if rf != None:
+				if r[1] == 'R':
+					rf.rotateRight()
+				else:
+					rf.rotateLeft()
+				t.asciiTree()
 
 		#Delete elements
 		for d in S[i]:
