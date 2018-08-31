@@ -44,6 +44,12 @@ class node():
 	def predecessor(self, val):
 		pass
 
+	def __repr__(self):
+		COLR = '\33[90m' if self.black else '\033[91m'
+		CEND = '\033[0m'
+		return "{}{}{}".format(COLR, self.val, CEND)
+
+
 
 class rbTree():
 	def __init__(self):
@@ -114,6 +120,8 @@ class rbTree():
 		else:
 			current = n
 			while True:
+				if current.parent == None:
+					break
 				current.parent.black = True
 				u = current.uncle()
 				g = current.grandparent()
@@ -192,14 +200,31 @@ class rbTree():
 			out = ''
 			if x != None:
 				out += dp(x.left)
-				out += x.__repr__()
+				out += x.__repr__() + " "
 				out += dp(x.right)
 			return out
 		return dp(self.root)
 
 	def asciiTree(self):
-		out = ''
-		return out
+		def dp(x):
+			out = ''
+			if x == None:
+				return out
+			leftConnector = '|' if (not x.isLeftChild() and x.parent != None) else ' '
+			rightConnector = '|' if x.isLeftChild() else ' '
+			prefix = "  "
+			if x.parent != None:
+				prefix = "L-" if x.isLeftChild() else "R-"
+			childPad = " " * (len(str(x.val)) + 1)
+			leftOut = dp(x.left)
+			leftOut = [ "{}{}{}\n".format(leftConnector,childPad,l) for l in leftOut.split('\n') ]
+			out += ''.join(leftOut)
+			out += prefix + x.__repr__() + '\n'
+			rightOut = dp(x.right)
+			rightOut = [ "{}{}{}\n".format(rightConnector,childPad,l) for l in rightOut.split('\n') ]
+			out += ''.join(rightOut)
+			return out
+		return dp(self.root)
 
 
 
