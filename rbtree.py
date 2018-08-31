@@ -6,6 +6,11 @@ class node():
 		self.left = left
 		self.right = right
 
+	def isLeftChild(self):
+		if self.parent == None:
+			return False
+		return self.parent.left == self
+
 	def sibling(self):
 		if self.parent == None:
 			return None
@@ -19,8 +24,25 @@ class node():
 			return None
 		return self.parent.sibling()
 
+	def grandparent(self):
+		if self.parent == None or self.parent.parent == None:
+			return None
+		return self.parent.parent
+
 	def flipColor(self):
 		self.black = not self.black
+
+	def swapChild(self, n, x):
+		if self.left == n:
+			self.left = x
+		else:
+			self.right = x
+
+	def successor(self, val):
+		pass
+
+	def predecessor(self, val):
+		pass
 
 
 class rbTree():
@@ -42,7 +64,8 @@ class rbTree():
 					if current.left == None:
 						current.left = x
 						x.parent = current
-						self.fixRedBlack(x)
+						if not current.black:
+							self.fixRedBlack(x)
 						return
 					else:
 						current = current.left
@@ -51,36 +74,112 @@ class rbTree():
 					if current.right == None:
 						current.right = x
 						x.parent = current
-						self.fixRedBlack(x)
+						if not current.black:
+							self.fixRedBlack(x)
 						return
 					else:
 						current = current.right
 						continue
 
-	
-
-
-
 	def fixRedBlack(self, n):
-		pass
+		u = n.uncle()
+		if u == None:
+			return
+		
+		if u.black:
+			g = n.grandparent()
+			p = n.parent
+			if n.isLeftChild() and n.parent.isLeftChild():
+				self.rotateRight(g)
+				temp = p.black
+				p.black = g.black
+				g.black = temp
+			elif n.isLeftChild() and not n.parent.isLeftChild():
+				self.rotateLeft(p)
+				self.rotateRight(g)
+				temp = n.black
+				n.black = g.black
+				g.black = temp
+			elif not n.isLeftChild() and not n.parent.isLeftChild():
+				self.rotateLeft(g)
+				temp = p.black
+				p.black = g.black
+				g.black = temp
+			elif not n.isLeftChild() and n.parent.isLeftChild():
+				self.rotateRight(p)
+				self.rotateLeft(g)
+				temp = n.black
+				n.black = g.black
+				g.black = temp
+		else:
+			current = n
+			while True:
+				current.parent.black = True
+				u = current.uncle()
+				g = current.grandparent()
+				if g == None or u == None:
+					break
+				u.black = True
+				g.black = False
+				current = g
+
 
 	def delete(self, val):
 		pass
 
 	def find(self, val):
-		pass
+		current = self.root
+		while True:
+			if current.val == val:
+				return current
+			elif current.val < val:
+				if current.right == None:
+					return None
+				else:
+					current = current.right
+					continue
+			elif current.val > val:
+				if current.left == None:
+					return None
+				else:
+					current = current.left
+					continue
 
 	def rotateLeft(self, n):
-		pass
+		l = n.left
+		if l == None:
+			return
+		p = n.parent
+		if p != None:
+			p.swapChild(n, l)
+		else:
+			self.root = l
+		l.parent = p
+		n.parent = l
+
+		lr = l.right
+		l.right = n
+		n.left = lr
+		if lr != None:
+			lr.parent = n
 
 	def rotateRight(self, n):
-		pass
+		r = n.right
+		if r == None:
+			return
+		p = n.parent
+		if p != None:
+			p.swapChild(n, r)
+		else:
+			self.root = r
+		r.parent = p
+		n.parent = r
 
-	def successor(self, val):
-		pass
-
-	def predecessor(self, val):
-		pass
+		rl = r.left
+		r.left = n
+		n.right = rl
+		if rl != None:
+			rl.parent = n
 
 	def min(self):
 		pass
@@ -89,12 +188,18 @@ class rbTree():
 		pass
 
 	def inOrderTraverse(self):
-		pass
+		def dp(x):
+			out = ''
+			if x != None:
+				out += dp(x.left)
+				out += x.__repr__()
+				out += dp(x.right)
+			return out
+		return dp(self.root)
 
 	def asciiTree(self):
-		pass
-
-
+		out = ''
+		return out
 
 
 
@@ -124,53 +229,43 @@ if __name__ == "__main__":
 		print("Building tree with {}".format(A[i]))
 		t = rbTree()
 		for ai in range(0, len(A[i])):
-			t.insert(bst(A[i][ai]))
+			t.insert(A[i][ai])
 
 		#Find elements
 		for f in S[i]:
 			print("t.find({}) = {}".format(f, t.find(f)))
 
 		#Get successor
-		for s in S[i]:
-			sf = t.find(s)
-			if sf != None:
-				print("t.successor({}) = {}".format(s, sf.successor()))
-			else:
-				print("t.successor({}) = {}".format(s, None))
+		# for s in S[i]:
+		# 	sf = t.find(s)
+		# 	if sf != None:
+		# 		print("t.successor({}) = {}".format(s, sf.successor()))
+		# 	else:
+		# 		print("t.successor({}) = {}".format(s, None))
 
 		#Get predecessor
-		for p in S[i]:
-			pf = t.find(p)
-			if pf != None:
-				print("t.predecessor({}) = {}".format(p, pf.predecessor()))
-			else:
-				print("t.predecessor({}) = {}".format(p, None))
+		# for p in S[i]:
+		# 	pf = t.find(p)
+		# 	if pf != None:
+		# 		print("t.predecessor({}) = {}".format(p, pf.predecessor()))
+		# 	else:
+		# 		print("t.predecessor({}) = {}".format(p, None))
 
 		#Traverse
-		t.inOrderTraverse()
-		t.asciiTree()
-		print('min = {}'.format(t.min()))
-		print('max = {}'.format(t.max()))
-
-		#Rotate
-		for r in R[i]:
-			rf = t.find(r[0])
-			if rf != None:
-				if r[1] == 'R':
-					rf.rotateRight()
-				else:
-					rf.rotateLeft()
-				t.asciiTree()
+		print(t.inOrderTraverse())
+		print(t.asciiTree())
+		# print('min = {}'.format(t.min()))
+		# print('max = {}'.format(t.max()))
 
 		#Delete elements
-		for d in S[i]:
-			df = t.find(d)
-			if df != None:
-				t.delete(df)
-				print("t.delete({})".format(d))
-			else:
-				print("{} not found in t".format(d))
+		# for d in S[i]:
+		# 	df = t.find(d)
+		# 	if df != None:
+		# 		t.delete(df)
+		# 		print("t.delete({})".format(d))
+		# 	else:
+		# 		print("{} not found in t".format(d))
 
 		#Traverse
-		t.inOrderTraverse()
-		t.asciiTree()
+		# t.inOrderTraverse()
+		# t.asciiTree()
