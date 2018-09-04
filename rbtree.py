@@ -45,20 +45,25 @@ class node():
 		pass
 
 	def __repr__(self):
+		COLR = 'B' if self.black else 'R'
+		out = "{}{}".format(COLR, self.val) if False else self.__str__()
+		return out
+
+	def __str__(self):
 		COLR = '\33[90m' if self.black else '\033[91m'
 		CEND = '\033[0m'
 		return "{}{}{}".format(COLR, self.val, CEND)
 
 
-
 class rbTree():
 	def __init__(self):
 		self.root = None
+		self.sentinel = node('S', black=True)
 
 	def insert(self, val):
-		x = node(val)
+		x = node(val, left=self.sentinel, right=self.sentinel)
 		if self.root == None:
-			x.flipColor()
+			x.black = True
 			self.root = x
 			return
 		else:
@@ -67,70 +72,78 @@ class rbTree():
 				if current.val == val:
 					return
 				elif current.val > val:
-					if current.left == None:
+					if current.left == self.sentinel:
 						current.left = x
 						x.parent = current
-						if not current.black:
-							self.fixRedBlack(x)
-						return
+						break
 					else:
 						current = current.left
 						continue
 				elif current.val < val:
-					if current.right == None:
+					if current.right == self.sentinel:
 						current.right = x
 						x.parent = current
-						if not current.black:
-							self.fixRedBlack(x)
-						return
+						break
 					else:
 						current = current.right
 						continue
-
-	def fixRedBlack(self, n):
-		u = n.uncle()
-		if u == None:
-			return
+			self.fixRedBlack(x)
 		
-		if u.black:
-			g = n.grandparent()
-			p = n.parent
-			if n.isLeftChild() and n.parent.isLeftChild():
-				self.rotateRight(g)
-				temp = p.black
-				p.black = g.black
-				g.black = temp
-			elif n.isLeftChild() and not n.parent.isLeftChild():
-				self.rotateLeft(p)
-				self.rotateRight(g)
-				temp = n.black
-				n.black = g.black
-				g.black = temp
-			elif not n.isLeftChild() and not n.parent.isLeftChild():
-				self.rotateLeft(g)
-				temp = p.black
-				p.black = g.black
-				g.black = temp
-			elif not n.isLeftChild() and n.parent.isLeftChild():
-				self.rotateRight(p)
-				self.rotateLeft(g)
-				temp = n.black
-				n.black = g.black
-				g.black = temp
-		else:
-			current = n
-			while True:
-				if current.parent == None:
-					break
-				current.parent.black = True
-				u = current.uncle()
-				g = current.grandparent()
-				if g == None or u == None:
-					break
-				u.black = True
-				g.black = False
-				current = g
-
+	def fixRedBlack(self, n):
+		# print("FIXREDBLACK\nn is {}".format(n))
+		while n != self.root and n.parent.black != True:
+			# if n.black:
+			# 	return
+			if n.parent == n.parent.parent.left:
+				# parent is to the left
+				# print("CASE A")
+				u = n.parent.parent.right
+				# print("u is {} and is right".format(u))
+				if not u.black:
+					# case 1 -> change the colors
+					n.parent.black = True
+					u.black = True
+					if n.parent.parent != None:
+						n.parent.parent.black = False
+					# move x up the tree
+					# print("CASE 1: n{} p{} u{}".format(n, p, u))
+					n = n.parent.parent
+				else:
+					# uncle is black
+					if n == n.parent.right:
+						# and n is to the right
+						# case 2 -> move n up and rotate
+						n = n.parent
+						self.rotateLeft(n)
+					# case 3
+					n.parent.black = True
+					if n.parent.parent != None:
+						n.parent.parent.black = False
+						self.rotateRight(n.parent.parent)
+			else:
+				u = n.parent.parent.left
+				if not u.black:
+					# case 1 -> change the colors
+					n.parent.black = True
+					u.black = True
+					if n.parent.parent != None:
+						n.parent.parent.black = False
+					# move x up the tree
+					n = n.parent.parent
+				else:
+					# uncle is black
+					if n == n.parent.left:
+						# and n is to the right
+						# case 2 -> move n up and rotate
+						n = n.parent
+						self.rotateRight(n)
+					# case 3
+					n.parent.black = True
+					if n.parent.parent != None:
+						n.parent.parent.black = False
+						self.rotateLeft(n.parent.parent)
+		self.root.black = True
+		
 
 	def delete(self, val):
 		pass
@@ -141,21 +154,23 @@ class rbTree():
 			if current.val == val:
 				return current
 			elif current.val < val:
-				if current.right == None:
+				if current.right == self.sentinel:
 					return None
 				else:
 					current = current.right
 					continue
 			elif current.val > val:
-				if current.left == None:
+				if current.left == self.sentinel:
 					return None
 				else:
 					current = current.left
 					continue
 
-	def rotateLeft(self, n):
+	def rotateRight(self, n):
+		if n == None:
+			return
 		l = n.left
-		if l == None:
+		if l == self.sentinel:
 			return
 		p = n.parent
 		if p != None:
@@ -171,9 +186,11 @@ class rbTree():
 		if lr != None:
 			lr.parent = n
 
-	def rotateRight(self, n):
+	def rotateLeft(self, n):
+		if n == None:
+			return
 		r = n.right
-		if r == None:
+		if r == self.sentinel:
 			return
 		p = n.parent
 		if p != None:
@@ -198,7 +215,7 @@ class rbTree():
 	def inOrderTraverse(self):
 		def dp(x):
 			out = ''
-			if x != None:
+			if x != self.sentinel:
 				out += dp(x.left)
 				out += x.__repr__() + " "
 				out += dp(x.right)
@@ -212,20 +229,21 @@ class rbTree():
 				return out
 			leftConnector = '|' if (not x.isLeftChild() and x.parent != None) else ' '
 			rightConnector = '|' if x.isLeftChild() else ' '
-			prefix = "  "
+			prefix = ""
 			if x.parent != None:
 				prefix = "L-" if x.isLeftChild() else "R-"
-			childPad = " " * (len(str(x.val)) + 1)
+			if x == self.sentinel:
+				prefix = ""
+			childPad = " " * (len(str(x.val)) + len(prefix))
 			leftOut = dp(x.left)
-			leftOut = [ "{}{}{}\n".format(leftConnector,childPad,l) for l in leftOut.split('\n') ]
+			leftOut = [ "{}{}{}\n".format(leftConnector,childPad,l) for l in leftOut.split('\n') if l != '']
 			out += ''.join(leftOut)
 			out += prefix + x.__repr__() + '\n'
 			rightOut = dp(x.right)
-			rightOut = [ "{}{}{}\n".format(rightConnector,childPad,l) for l in rightOut.split('\n') ]
+			rightOut = [ "{}{}{}\n".format(rightConnector,childPad,l) for l in rightOut.split('\n') if l != '']
 			out += ''.join(rightOut)
 			return out
 		return dp(self.root)
-
 
 
 
