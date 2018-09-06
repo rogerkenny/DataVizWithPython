@@ -1304,12 +1304,91 @@ def primeFactors(n):
 	largestPossible = n/2
 	#TODO
 
-
-
- 
-
 X = [ 13195, 600851475143 ]
 
+
+def permute(A):
+	'''
+	x1 + DP( A - x1 )
+	'''
+	out = []
+	
+	def dp(B, out, p = None):
+		if len(B) == 1:
+			b = p if p != None else []
+			b.append(B[0])
+			out.append(b)
+			return
+			
+		for a in B:
+			remain = [x for x in B if x != a]
+			b = p[:] if p != None else []
+			b.append(a)
+			# print("a = {}, remain={}, p={}".format(a, remain, b))
+			dp(remain, out, b)
+	
+	dp(A, out)
+
+	return out
+
+A = [[1,2,3,4],]
+
+for a in A:
+	print("permute({}) is {}".format(a, permute(a)))
+
+
+def getPermutation(A, B):
+	L = list(range(1, A + 1))
+	print("L = {}".format(L))
+	count = [0]
+	out = []
+	
+	def dp(remA, count, B, out, p = None):
+		if len(remA) == 1:
+			count[0] += 1
+			print("count = {}, B = {}".format(count, B))
+			if count[0] == B:
+				b = p if p != None else []
+				b.append(remA[0])
+				out.append(b[:])
+				print("b = {}, out = {}".format(b, out))
+			return
+		
+		for a in remA:
+			aa = [x for x in remA if x != a]
+			b = p[:] if p != None else []
+			b.append(a)
+			dp(aa, count, B, out, b)
+			if len(out) != 0:
+				return
+				
+	dp(L, count, B, out)
+	print("out = {}".format(out))
+	return "".join([ str(x) for x in out[0]])
+
+'''
+LOCAL / GLOBAL VARIABLES AND PASSED VARIABLES
+
+Mutable types passed into functions are passed by reference.
+List, Dict, Set.
+Mutating operations mutate the passed object.
+ASSIGNMENT within the function breaks the reference!
+Non mutating types are unaffected by operations within the funciton (or outside either)
+String, 
+
+Default mutable arguments are evaluated ONCE at the definition of the function. Further calls modify the originally defined object.
+SEE
+http://book.pythontips.com/en/latest/mutation.html
+
+
+
+
+'''
+
+A = [[4,4]]
+
+for a in A:
+	print("getPermutation({}, {}) is {}".format(a[0], a[1], getPermutation(a[0], a[1])))
 
 
 
