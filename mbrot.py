@@ -49,7 +49,7 @@ def generate(f):
 		colors = [196+24, 196+12, 160 +9, 124+1, 16+5]
 
 		palette = "*=:-." if not color else [ '\033[48;5;{}m \033[m'.format(x) for x in colors ]
-		fill = " " if not color else '\033[48;5;0m \033[m'
+		fill = "█" if not color else '\033[48;5;0m \033[m'
 
 		iterations = 100
 
